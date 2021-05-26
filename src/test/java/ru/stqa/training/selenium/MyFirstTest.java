@@ -28,7 +28,7 @@ public class MyFirstTest {
     DesiredCapabilities caps = new DesiredCapabilities();
     caps.setCapability("unexpectedAlertBehaviour", "dismiss");
    // driver = new InternetExplorerDriver(caps);
-    driver = new ChromeDriver(caps);
+    driver = new FirefoxDriver(caps);
     System.out.println(((HasCapabilities) driver).getCapabilities());
     wait = new WebDriverWait(driver,10);
   }
