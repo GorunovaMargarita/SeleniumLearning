@@ -42,14 +42,19 @@ public class ApplicationManager {
     properties.load(new FileReader(new File("src/test/resources/local.properties")));
   }
 
-  public void login(String email, String login) {
+  public void login(String email, String password) {
     wd.get(properties.getProperty("web.baseUrl"));
     wd.findElement(By.xpath("//input[@name='email']")).sendKeys(email);
-    wd.findElement(By.xpath("//input[@name='password']")).sendKeys(login);
+    wd.findElement(By.xpath("//input[@name='password']")).sendKeys(password);
     wd.findElement(By.xpath("//button[@name='login']")).click();
     wd.findElement(By.cssSelector("a[href='http://localhost/litecart/public_html/en/logout']"));
   }
-
+  public void loginAdmin() {
+    wd.get(properties.getProperty("web.adminUrl"));
+    wd.findElement(By.xpath("//input[@name='username']")).sendKeys(properties.getProperty("web.adminLogin"));
+    wd.findElement(By.xpath("//input[@name='password']")).sendKeys(properties.getProperty("web.adminPassword"));
+    wd.findElement(By.xpath("//button[@name='login']")).click();
+  }
   public void stop() {
     wd.quit();
   }
