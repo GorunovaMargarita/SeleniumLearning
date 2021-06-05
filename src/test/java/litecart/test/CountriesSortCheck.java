@@ -24,5 +24,13 @@ public class CountriesSortCheck extends TestBase {
     notSortedNames.addAll(names);
     Collections.sort(names);
     Assert.assertEquals(notSortedNames, names);
+
+    List<WebElement> countryRow = app.wd.findElements(By.cssSelector("tr.row"));
+    for (WebElement row : countryRow){
+      if(!row.findElement(By.cssSelector("td:nth-child(6)")).getText().equals("0")) {
+        row.findElement(By.cssSelector("td > a")).click();
+        List<WebElement> zones = app.wd.findElements(By.cssSelector("td:nth-child(3)>input[name^='zones']"));
+      }
+    }
   }
 }
