@@ -34,12 +34,13 @@ public class ProductCheck extends TestBase {
     String fontSizeCampaignOnProductForm =  app.wd.findElement(By.cssSelector("div.price-wrapper")).getCssValue("font-size");
 
     System.out.println("Имя: " + nameOnProductForm + "; Цена: " + priceOnProductForm + "; Акционная цена " + priceCampaignOnProductForm + "\n" +
-            "Цвет цены: " + colorPriceOnProductForm + "; текст стиль: " + stylePriceOnProductForm + ", размер шрифта: " + fontSizePriceOnProductForm +"\n" +
-            "Цвет акционной цены: " + colorPriceCampaignOnProductForm +"; текст жирность: " + stylePriceCampaignOnProductForm+ ", размер шрифта: " + fontSizeCampaignOnProductForm);
+                      "Цвет цены: " + colorPriceOnProductForm + "; текст стиль: " + stylePriceOnProductForm + ", размер шрифта: " + fontSizePriceOnProductForm +"\n" +
+                      "Цвет акционной цены: " + colorPriceCampaignOnProductForm +"; текст жирность: " + stylePriceCampaignOnProductForm+ ", размер шрифта: " + fontSizeCampaignOnProductForm);
 
     Assert.assertEquals(name,nameOnProductForm);
     Assert.assertEquals(price,priceOnProductForm);
     Assert.assertEquals(priceCampaign,priceCampaignOnProductForm);
-    Assert.assertEquals(stylePrice,stylePriceOnProductForm,"line-through");
+    Assert.assertEquals("line-through", stylePrice);
+    Assert.assertEquals("line-through", stylePriceOnProductForm);
   }
 }
