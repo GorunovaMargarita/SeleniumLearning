@@ -8,12 +8,14 @@ import org.openqa.selenium.firefox.*;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.support.pagefactory.ElementLocator;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 import java.util.Properties;
 
 public class ApplicationManager {
@@ -85,9 +87,24 @@ public class ApplicationManager {
     wd.findElement(By.cssSelector("#box-account a[href$='logout']")).click();
   }
 
-  public void addNewProduct(){
+  public void addNewProduct(String name, String code, String sex){
     wd.findElement(By.cssSelector("a[href$='catalog']")).click();
     wd.findElement(By.cssSelector("a.button[href$=product]")).click();
+    selectCheckBox(By.cssSelector("input[name='status'][value='1']"));
+    wd.findElement(By.cssSelector("input[name^='name']")).sendKeys(name);
+    wd.findElement(By.cssSelector("input[name='code']")).sendKeys(code);
+    selectCheckBox(By.cssSelector("i[title='Root']"));
+    selectCheckBox(By.xpath(String.format("//td[contains(text(),'%s')]/../td[1]",sex)));
+  }
+
+  public void selectCheckBox(By locator) {
+    List<WebElement> elements =wd.findElements(locator);
+    for (WebElement element : elements){
+      Boolean checked = Boolean.valueOf(element.getAttribute("checked"));
+      if(!checked){
+        element.click();
+      }
+    }
   }
 
   public void stop() {
