@@ -85,6 +85,11 @@ public class ApplicationManager {
     wd.findElement(By.cssSelector("#box-account a[href$='logout']")).click();
   }
 
+  public void addNewProduct(){
+    wd.findElement(By.cssSelector("a[href$='catalog']")).click();
+    wd.findElement(By.cssSelector("a.button[href$=product]")).click();
+  }
+
   public void stop() {
     wd.quit();
   }
