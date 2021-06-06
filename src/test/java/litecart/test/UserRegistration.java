@@ -2,13 +2,16 @@ package litecart.test;
 
 import org.junit.Test;
 
-import java.time.LocalDateTime;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class UserRegistration extends TestBase{
     @Test
     public void UserRegistrationTest(){
-        String timeSt = String.format(LocalDateTime.now().toString(), "DDMMYYYYhhmmss");
+        Date date = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("ddMMyyyyhhmmss");
+        String timeSt= dateFormat.format(date);
         String email = "TestEmail" + timeSt + "@gmail.com";
         String pass = "TestPass";
         String firstName = "TestUser"+timeSt;
@@ -19,5 +22,7 @@ public class UserRegistration extends TestBase{
         String country = "United States";
         String phone = timeSt;
         app.userRegistration(firstName,lastName,address,postcode,city,country,email,phone,pass);
+        app.logout();
+        app.login(email,pass);
     }
 }

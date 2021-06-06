@@ -70,16 +70,19 @@ public class ApplicationManager {
     wd.findElement(By.cssSelector("input[name=city]")).sendKeys(city);
     WebElement countryField = wd.findElement(By.cssSelector("span.select2-selection__arrow"));
     countryField.click();
-    wd.findElement(By.cssSelector("input[type=search]")).sendKeys(country);
-    Select select = new Select(wd.findElement(By.cssSelector("select[name=country_code]")));
+    Select select = new Select(wd.findElement(By.cssSelector("select.select2-hidden-accessible")));
     select.selectByVisibleText(country);
-    //select.selectByValue(country);
+    countryField.click();
     wd.findElement(By.cssSelector("input[name=email]")).sendKeys(email);
     WebElement phoneElement = wd.findElement(By.cssSelector("input[name=phone]"));
     phoneElement.sendKeys(Keys.HOME + phoneElement.getAttribute("placeholder") + phone);
     wd.findElement(By.cssSelector("input[name=password]")).sendKeys(password);
     wd.findElement(By.cssSelector("input[name='confirmed_password']")).sendKeys(password);
     wd.findElement(By.cssSelector("button[type=submit]")).click();
+  }
+
+  public void logout(){
+    wd.findElement(By.cssSelector("#box-account a[href$='logout']")).click();
   }
 
   public void stop() {

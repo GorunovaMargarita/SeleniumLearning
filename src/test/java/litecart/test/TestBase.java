@@ -13,7 +13,7 @@ import java.io.IOException;
 public class TestBase {
 
   protected static final ApplicationManager app
-          =new ApplicationManager(BrowserType.FIREFOX);
+          =new ApplicationManager(BrowserType.CHROME);
 
   @Before
   public void start() throws IOException {
