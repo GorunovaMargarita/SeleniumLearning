@@ -1,4 +1,5 @@
 package litecart.appmanager;
+import net.bytebuddy.asm.Advice;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
@@ -87,14 +88,20 @@ public class ApplicationManager {
     wd.findElement(By.cssSelector("#box-account a[href$='logout']")).click();
   }
 
-  public void addNewProduct(String name, String code, String sex){
+  public void addNewProduct(String name, String code, String category, String defaultCategory, String productGroupsGender, File photo,
+                            String quantity, String quantityUnit, String deliveryStatus){
     wd.findElement(By.cssSelector("a[href$='catalog']")).click();
     wd.findElement(By.cssSelector("a.button[href$=product]")).click();
     selectCheckBox(By.cssSelector("input[name='status'][value='1']"));
     wd.findElement(By.cssSelector("input[name^='name']")).sendKeys(name);
     wd.findElement(By.cssSelector("input[name='code']")).sendKeys(code);
-    selectCheckBox(By.cssSelector("i[title='Root']"));
-    selectCheckBox(By.xpath(String.format("//td[contains(text(),'%s')]/../td[1]",sex)));
+    selectCheckBox(By.cssSelector((String.format("input[data-name='%s']", category))));
+    selectValueFromList(By.cssSelector("select[name='default_category_id']"),defaultCategory);
+    selectCheckBox(By.xpath(String.format("//td[contains(text(),'%s')]/../td[1]",productGroupsGender)));
+    wd.findElement(By.cssSelector("input[type='file']")).sendKeys(photo.getAbsolutePath());
+    wd.findElement(By.cssSelector("input[name='quantity']")).sendKeys(quantity);
+    selectValueFromList(By.cssSelector("select[name='quantity_unit_id']"),quantityUnit);
+    selectValueFromList(By.cssSelector("select[name='delivery_status_id']"),deliveryStatus);
   }
 
   public void selectCheckBox(By locator) {
@@ -104,6 +111,13 @@ public class ApplicationManager {
       if(!checked){
         element.click();
       }
+    }
+  }
+
+  public void selectValueFromList (By locator, String value) {
+    Select select = new Select(wd.findElement(locator));
+    if(!select.getFirstSelectedOption().getText().equals(value)){
+      select.selectByVisibleText(value);
     }
   }
 
