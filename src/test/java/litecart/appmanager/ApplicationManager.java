@@ -83,7 +83,8 @@ public class ApplicationManager {
   }
 
   public void addNewProduct(String name, String code, String category, String defaultCategory, String productGroupsGender, File photo,
-                            String quantity, String quantityUnit, String deliveryStatus){
+                            String quantity, String quantityUnit, String deliveryStatus, String soldOutStatus, String dateValidFrom,
+                            String dateValidTo){
     wd.findElement(By.cssSelector("a[href$='catalog']")).click();
     wd.findElement(By.cssSelector("a.button[href$=product]")).click();
     selectCheckBox(By.cssSelector("input[name='status'][value='1']"));
@@ -92,10 +93,13 @@ public class ApplicationManager {
     selectCheckBox(By.cssSelector((String.format("input[data-name='%s']", category))));
     selectValueFromList(By.cssSelector("select[name='default_category_id']"),defaultCategory);
     selectCheckBox(By.xpath(String.format("//td[contains(text(),'%s')]/../td[1]",productGroupsGender)));
-    wd.findElement(By.cssSelector("input[type='file']")).sendKeys(photo.getAbsolutePath());
-    wd.findElement(By.cssSelector("input[name='quantity']")).sendKeys(quantity);
+    wd.findElement(By.cssSelector("input[name='quantity']")).sendKeys(Keys.BACK_SPACE + quantity);
     selectValueFromList(By.cssSelector("select[name='quantity_unit_id']"),quantityUnit);
     selectValueFromList(By.cssSelector("select[name='delivery_status_id']"),deliveryStatus);
+    selectValueFromList(By.cssSelector("select[name='sold_out_status_id']"),soldOutStatus);
+    wd.findElement(By.cssSelector("input[type='file']")).sendKeys(photo.getAbsolutePath());
+    wd.findElement(By.cssSelector("input[name='date_valid_from']")).sendKeys(Keys.HOME + dateValidFrom);
+    wd.findElement(By.cssSelector("input[name='date_valid_from']")).sendKeys(Keys.HOME + dateValidTo);
   }
 
   public void selectCheckBox(By locator) {
@@ -109,9 +113,11 @@ public class ApplicationManager {
   }
 
   public void selectValueFromList (By locator, String value) {
-    Select select = new Select(wd.findElement(locator));
-    if(!select.getFirstSelectedOption().getText().equals(value)){
-      select.selectByVisibleText(value);
+    if(value!=null){
+      Select select = new Select(wd.findElement(locator));
+      if(!select.getFirstSelectedOption().getText().equals(value)){
+        select.selectByVisibleText(value);
+      }
     }
   }
 
