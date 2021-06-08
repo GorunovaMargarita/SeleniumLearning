@@ -1,9 +1,6 @@
 package litecart.appmanager;
 import net.bytebuddy.asm.Advice;
-import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.*;
 import org.openqa.selenium.ie.InternetExplorerDriver;
@@ -71,11 +68,8 @@ public class ApplicationManager {
     wd.findElement(By.cssSelector("input[name=address1]")).sendKeys(address1);
     wd.findElement(By.cssSelector("input[name=postcode]")).sendKeys(postcode);
     wd.findElement(By.cssSelector("input[name=city]")).sendKeys(city);
-    WebElement countryField = wd.findElement(By.cssSelector("span.select2-selection__arrow"));
-    countryField.click();
-    Select select = new Select(wd.findElement(By.cssSelector("select.select2-hidden-accessible")));
-    select.selectByVisibleText(country);
-    countryField.click();
+    wd.findElement(By.cssSelector("span.select2-selection__arrow")).click();
+    wd.findElement(By.xpath(String.format("//li[contains(text(),'%s')]",country))).click();
     wd.findElement(By.cssSelector("input[name=email]")).sendKeys(email);
     WebElement phoneElement = wd.findElement(By.cssSelector("input[name=phone]"));
     phoneElement.sendKeys(Keys.HOME + phoneElement.getAttribute("placeholder") + phone);
@@ -119,6 +113,17 @@ public class ApplicationManager {
     if(!select.getFirstSelectedOption().getText().equals(value)){
       select.selectByVisibleText(value);
     }
+  }
+
+  public void unhide(WebElement element) {
+    String script = "arguments[0].style.opacity=1;"
+            + "arguments[0].style['transform']='translate(0px, 0px) scale(1)';"
+            + "arguments[0].style['MozTransform']='translate(0px, 0px) scale(1)';"
+            + "arguments[0].style['WebkitTransform']='translate(0px, 0px) scale(1)';"
+            + "arguments[0].style['msTransform']='translate(0px, 0px) scale(1)';"
+            + "arguments[0].style['OTransform']='translate(0px, 0px) scale(1)';"
+            + "return true;";
+    ((JavascriptExecutor) wd).executeScript(script, element);
   }
 
   public void stop() {
