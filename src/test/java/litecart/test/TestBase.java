@@ -18,7 +18,7 @@ public class TestBase {
   @Before
   public void start() throws IOException {
     app.init();
-    app.wait = new WebDriverWait(app.wd,10);
+    app.wait = new WebDriverWait(app.wd,30);
   }
 
   @After

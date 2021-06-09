@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
 
+import static org.openqa.selenium.support.ui.ExpectedConditions.stalenessOf;
+
 public class ApplicationManager {
   private final Properties properties;
   private final String browser;
@@ -85,36 +87,81 @@ public class ApplicationManager {
 
   public void addNewProduct(String name, String code, String category, String defaultCategory, String productGroupsGender, File photo,
                             String quantity, String quantityUnit, String deliveryStatus, String soldOutStatus, String dateValidFrom,
-                            String dateValidTo){
+                            String dateValidTo, String manufacturer,
+                            String supplier, String keywords, String shortDesc, String desc, String headTitle, String metaDesc,
+                            String price, String currency, String taxClass, String priceWithTaxUSD, String priceWithTaxEUR){
     wd.findElement(By.cssSelector("a[href$='catalog']")).click();
     wd.findElement(By.cssSelector("a.button[href$=product]")).click();
     selectCheckBox(By.cssSelector("input[name='status'][value='1']"));
     wd.findElement(By.cssSelector("input[name^='name']")).sendKeys(name);
     wd.findElement(By.cssSelector("input[name='code']")).sendKeys(code);
+    unselectCheckBox(By.cssSelector("input[name^='categories']"));
     selectCheckBox(By.cssSelector((String.format("input[data-name='%s']", category))));
     selectValueFromList(By.cssSelector("select[name='default_category_id']"),defaultCategory);
     selectCheckBox(By.xpath(String.format("//td[contains(text(),'%s')]/../td[1]",productGroupsGender)));
-    //wd.findElement(By.cssSelector("input[name='quantity']")).sendKeys(Keys.CLEAR);
     new Actions(wd)
             .moveToElement(wd.findElement(By.cssSelector("input[name='quantity']")))
-            .doubleClick()
-            .sendKeys(Keys.CLEAR)
+            .click()
+            .sendKeys(Keys.ARROW_RIGHT)
+            .sendKeys(Keys.BACK_SPACE)
             .sendKeys(quantity)
-            .sendKeys(Keys.TAB)
             .perform();
     selectValueFromList(By.cssSelector("select[name='quantity_unit_id']"),quantityUnit);
     selectValueFromList(By.cssSelector("select[name='delivery_status_id']"),deliveryStatus);
     selectValueFromList(By.cssSelector("select[name='sold_out_status_id']"),soldOutStatus);
     wd.findElement(By.cssSelector("input[type='file']")).sendKeys(photo.getAbsolutePath());
-   // wd.findElement(By.cssSelector("input[name='date_valid_from']")).sendKeys(dateValidFrom);
     new Actions(wd)
             .moveToElement(wd.findElement(By.cssSelector("input[name='date_valid_from']")))
-            //.doubleClick()
-            //.sendKeys(Keys.CLEAR)
+            .click()
+            .sendKeys(Keys.ARROW_LEFT)
+            .sendKeys(Keys.ARROW_LEFT)
             .sendKeys(dateValidFrom)
             .sendKeys(Keys.TAB)
             .perform();
-    wd.findElement(By.cssSelector("input[name='date_valid_from']")).sendKeys(dateValidTo);
+    new Actions(wd)
+            .moveToElement(wd.findElement(By.cssSelector("input[name='date_valid_to']")))
+            .click()
+            .sendKeys(Keys.ARROW_LEFT)
+            .sendKeys(Keys.ARROW_LEFT)
+            .sendKeys(dateValidTo)
+            .sendKeys(Keys.TAB)
+            .perform();
+
+    wd.findElement(By.cssSelector("a[href$='information']")).click();
+
+    selectValueFromList(By.cssSelector("select[name='manufacturer_id']"), manufacturer);
+    selectValueFromList(By.cssSelector("select[name='supplier_id']"), supplier);
+    wd.findElement(By.cssSelector("input[name='keywords']")).sendKeys(keywords);
+    wd.findElement(By.cssSelector("input[name='short_description[en]']")).sendKeys(shortDesc);
+    wd.findElement(By.cssSelector("div.trumbowyg-editor")).sendKeys(desc);
+    wd.findElement(By.cssSelector("input[name='head_title[en]']")).sendKeys(headTitle);
+    wd.findElement(By.cssSelector("input[name='meta_description[en]']")).sendKeys(metaDesc);
+
+    wd.findElement(By.cssSelector("a[href$='prices']")).click();
+    new Actions(wd)
+            .moveToElement(wd.findElement(By.cssSelector("input[name='purchase_price']")))
+            .click()
+            .sendKeys(Keys.ARROW_RIGHT)
+            .sendKeys(Keys.BACK_SPACE)
+            .sendKeys(price)
+            .perform();
+    selectValueFromList(By.cssSelector("select[name = 'purchase_price_currency_code']"),currency);
+    selectValueFromList(By.cssSelector("select[name = 'tax_class_id']"), taxClass);
+    new Actions(wd)
+            .moveToElement(wd.findElement(By.cssSelector("input[name='gross_prices[USD]']")))
+            .click()
+            .sendKeys(Keys.ARROW_RIGHT)
+            .sendKeys(Keys.BACK_SPACE)
+            .sendKeys(priceWithTaxUSD)
+            .perform();
+    new Actions(wd)
+            .moveToElement(wd.findElement(By.cssSelector("input[name='gross_prices[EUR]']")))
+            .click()
+            .sendKeys(Keys.ARROW_RIGHT)
+            .sendKeys(Keys.BACK_SPACE)
+            .sendKeys(priceWithTaxEUR)
+            .perform();
+    wd.findElement(By.cssSelector("button[name='save']")).click();
   }
 
   public void selectCheckBox(By locator) {
@@ -122,6 +169,15 @@ public class ApplicationManager {
     for (WebElement element : elements){
       Boolean checked = Boolean.valueOf(element.getAttribute("checked"));
       if(!checked){
+        element.click();
+      }
+    }
+  }
+  public void unselectCheckBox (By locator) {
+    List<WebElement> elements =wd.findElements(locator);
+    for (WebElement element : elements){
+      Boolean checked = Boolean.valueOf(element.getAttribute("checked"));
+      if(checked){
         element.click();
       }
     }
@@ -145,6 +201,17 @@ public class ApplicationManager {
             + "arguments[0].style['OTransform']='translate(0px, 0px) scale(1)';"
             + "return true;";
     ((JavascriptExecutor) wd).executeScript(script, element);
+  }
+
+  public boolean isProductExist(String nameOfProduct) {
+    wd.findElement(By.cssSelector("a[href$='catalog']")).click();
+    wd.findElement(By.cssSelector("input[type='search']")).sendKeys(nameOfProduct + Keys.ENTER);
+    WebElement footer = wd.findElement(By.cssSelector("tr.footer"));
+    WebDriverWait wait = new WebDriverWait(wd, 10/*seconds*/);
+    wd.navigate().refresh();
+    wait.until(stalenessOf(footer));
+    List<WebElement> elements = wd.findElements(By.xpath(String.format("//a[contains(text(),'%s')]",nameOfProduct)));
+    return elements.size()>0;
   }
 
   public void stop() {
