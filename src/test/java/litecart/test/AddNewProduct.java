@@ -19,8 +19,8 @@ public class AddNewProduct extends TestBase{
         String quantityUnit = "pcs";
         String deliveryStatus = "3-5 days";
         String soldOutStatus = "Temporary sold out";
-        String dateValidFrom = "01.01.2021";
-        String dateValidTo = "31.12.2021";
+        String dateValidFrom = "01012021";
+        String dateValidTo = "31122021";
         app.addNewProduct(name,code,category,defaultCategory,productGroupsGender,
                             photo,quantity,quantityUnit,deliveryStatus,soldOutStatus,dateValidFrom,dateValidTo);
     }

@@ -4,6 +4,7 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.*;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.pagefactory.ElementLocator;
@@ -93,13 +94,27 @@ public class ApplicationManager {
     selectCheckBox(By.cssSelector((String.format("input[data-name='%s']", category))));
     selectValueFromList(By.cssSelector("select[name='default_category_id']"),defaultCategory);
     selectCheckBox(By.xpath(String.format("//td[contains(text(),'%s')]/../td[1]",productGroupsGender)));
-    wd.findElement(By.cssSelector("input[name='quantity']")).sendKeys(Keys.BACK_SPACE + quantity);
+    //wd.findElement(By.cssSelector("input[name='quantity']")).sendKeys(Keys.CLEAR);
+    new Actions(wd)
+            .moveToElement(wd.findElement(By.cssSelector("input[name='quantity']")))
+            .doubleClick()
+            .sendKeys(Keys.CLEAR)
+            .sendKeys(quantity)
+            .sendKeys(Keys.TAB)
+            .perform();
     selectValueFromList(By.cssSelector("select[name='quantity_unit_id']"),quantityUnit);
     selectValueFromList(By.cssSelector("select[name='delivery_status_id']"),deliveryStatus);
     selectValueFromList(By.cssSelector("select[name='sold_out_status_id']"),soldOutStatus);
     wd.findElement(By.cssSelector("input[type='file']")).sendKeys(photo.getAbsolutePath());
-    wd.findElement(By.cssSelector("input[name='date_valid_from']")).sendKeys(Keys.HOME + dateValidFrom);
-    wd.findElement(By.cssSelector("input[name='date_valid_from']")).sendKeys(Keys.HOME + dateValidTo);
+   // wd.findElement(By.cssSelector("input[name='date_valid_from']")).sendKeys(dateValidFrom);
+    new Actions(wd)
+            .moveToElement(wd.findElement(By.cssSelector("input[name='date_valid_from']")))
+            //.doubleClick()
+            //.sendKeys(Keys.CLEAR)
+            .sendKeys(dateValidFrom)
+            .sendKeys(Keys.TAB)
+            .perform();
+    wd.findElement(By.cssSelector("input[name='date_valid_from']")).sendKeys(dateValidTo);
   }
 
   public void selectCheckBox(By locator) {
