@@ -91,7 +91,8 @@ public class ApplicationManager {
                             String supplier, String keywords, String shortDesc, String desc, String headTitle, String metaDesc,
                             String price, String currency, String taxClass, String priceWithTaxUSD, String priceWithTaxEUR){
     wd.findElement(By.cssSelector("a[href$='catalog']")).click();
-    wd.findElement(By.cssSelector("a.button[href$=product]")).click();
+    //wd.findElement(By.cssSelector("a.button[href$=product]")).click();
+    wd.findElement(By.xpath("//a[contains(text(),'Add New Product')]")).click();
     selectCheckBox(By.cssSelector("input[name='status'][value='1']"));
     wd.findElement(By.cssSelector("input[name^='name']")).sendKeys(name);
     wd.findElement(By.cssSelector("input[name='code']")).sendKeys(code);
@@ -208,7 +209,6 @@ public class ApplicationManager {
     wd.findElement(By.cssSelector("input[type='search']")).sendKeys(nameOfProduct + Keys.ENTER);
     WebElement footer = wd.findElement(By.cssSelector("tr.footer"));
     WebDriverWait wait = new WebDriverWait(wd, 10/*seconds*/);
-    wd.navigate().refresh();
     wait.until(stalenessOf(footer));
     List<WebElement> elements = wd.findElements(By.xpath(String.format("//a[contains(text(),'%s')]",nameOfProduct)));
     return elements.size()>0;
