@@ -1,13 +1,10 @@
 package litecart.appmanager;
-import net.bytebuddy.asm.Advice;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.*;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.BrowserType;
-import org.openqa.selenium.remote.DesiredCapabilities;
-import org.openqa.selenium.support.pagefactory.ElementLocator;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -16,14 +13,15 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
-
-import static org.openqa.selenium.support.ui.ExpectedConditions.stalenessOf;
+import java.util.concurrent.TimeUnit;
 
 public class ApplicationManager {
   private final Properties properties;
   private final String browser;
   public WebDriver wd;
   public WebDriverWait wait;
+  public int implicitlyWaitTimeOut = 10;
+  public int waitTimeOut = 10;
 
 
   public ApplicationManager(String browser)  {
@@ -46,6 +44,8 @@ public class ApplicationManager {
       wd = new InternetExplorerDriver();
     }
     properties.load(new FileReader(new File("src/test/resources/local.properties")));
+    wd.manage().timeouts().implicitlyWait(implicitlyWaitTimeOut, TimeUnit.SECONDS);
+    wait = new WebDriverWait(wd,waitTimeOut);
   }
 
   public void login(String email, String password) {
@@ -91,8 +91,9 @@ public class ApplicationManager {
                             String supplier, String keywords, String shortDesc, String desc, String headTitle, String metaDesc,
                             String price, String currency, String taxClass, String priceWithTaxUSD, String priceWithTaxEUR){
     wd.findElement(By.cssSelector("a[href$='catalog']")).click();
-    //wd.findElement(By.cssSelector("a.button[href$=product]")).click();
+
     wd.findElement(By.xpath("//a[contains(text(),'Add New Product')]")).click();
+
     selectCheckBox(By.cssSelector("input[name='status'][value='1']"));
     wd.findElement(By.cssSelector("input[name^='name']")).sendKeys(name);
     wd.findElement(By.cssSelector("input[name='code']")).sendKeys(code);
@@ -100,33 +101,15 @@ public class ApplicationManager {
     selectCheckBox(By.cssSelector((String.format("input[data-name='%s']", category))));
     selectValueFromList(By.cssSelector("select[name='default_category_id']"),defaultCategory);
     selectCheckBox(By.xpath(String.format("//td[contains(text(),'%s')]/../td[1]",productGroupsGender)));
-    new Actions(wd)
-            .moveToElement(wd.findElement(By.cssSelector("input[name='quantity']")))
-            .click()
-            .sendKeys(Keys.ARROW_RIGHT)
-            .sendKeys(Keys.BACK_SPACE)
-            .sendKeys(quantity)
-            .perform();
+    findElementAndTypeQuantity(wd.findElement(By.cssSelector("input[name='quantity']")), quantity);
     selectValueFromList(By.cssSelector("select[name='quantity_unit_id']"),quantityUnit);
     selectValueFromList(By.cssSelector("select[name='delivery_status_id']"),deliveryStatus);
     selectValueFromList(By.cssSelector("select[name='sold_out_status_id']"),soldOutStatus);
     wd.findElement(By.cssSelector("input[type='file']")).sendKeys(photo.getAbsolutePath());
-    new Actions(wd)
-            .moveToElement(wd.findElement(By.cssSelector("input[name='date_valid_from']")))
-            .click()
-            .sendKeys(Keys.ARROW_LEFT)
-            .sendKeys(Keys.ARROW_LEFT)
-            .sendKeys(dateValidFrom)
-            .sendKeys(Keys.TAB)
-            .perform();
-    new Actions(wd)
-            .moveToElement(wd.findElement(By.cssSelector("input[name='date_valid_to']")))
-            .click()
-            .sendKeys(Keys.ARROW_LEFT)
-            .sendKeys(Keys.ARROW_LEFT)
-            .sendKeys(dateValidTo)
-            .sendKeys(Keys.TAB)
-            .perform();
+    wd.findElement(By.cssSelector("input[name='date_valid_from']")).click();
+    typeDateValue(dateValidFrom);
+    wd.findElement(By.cssSelector("input[name='date_valid_to']")).click();
+    typeDateValue(dateValidTo);
 
     wd.findElement(By.cssSelector("a[href$='information']")).click();
 
@@ -139,29 +122,13 @@ public class ApplicationManager {
     wd.findElement(By.cssSelector("input[name='meta_description[en]']")).sendKeys(metaDesc);
 
     wd.findElement(By.cssSelector("a[href$='prices']")).click();
-    new Actions(wd)
-            .moveToElement(wd.findElement(By.cssSelector("input[name='purchase_price']")))
-            .click()
-            .sendKeys(Keys.ARROW_RIGHT)
-            .sendKeys(Keys.BACK_SPACE)
-            .sendKeys(price)
-            .perform();
+
+    findElementAndTypeQuantity(wd.findElement(By.cssSelector("input[name='purchase_price']")), price);
     selectValueFromList(By.cssSelector("select[name = 'purchase_price_currency_code']"),currency);
     selectValueFromList(By.cssSelector("select[name = 'tax_class_id']"), taxClass);
-    new Actions(wd)
-            .moveToElement(wd.findElement(By.cssSelector("input[name='gross_prices[USD]']")))
-            .click()
-            .sendKeys(Keys.ARROW_RIGHT)
-            .sendKeys(Keys.BACK_SPACE)
-            .sendKeys(priceWithTaxUSD)
-            .perform();
-    new Actions(wd)
-            .moveToElement(wd.findElement(By.cssSelector("input[name='gross_prices[EUR]']")))
-            .click()
-            .sendKeys(Keys.ARROW_RIGHT)
-            .sendKeys(Keys.BACK_SPACE)
-            .sendKeys(priceWithTaxEUR)
-            .perform();
+    findElementAndTypeQuantity(wd.findElement(By.cssSelector("input[name='gross_prices[USD]']")), priceWithTaxUSD);
+    findElementAndTypeQuantity(wd.findElement(By.cssSelector("input[name='gross_prices[EUR]']")), priceWithTaxEUR);
+
     wd.findElement(By.cssSelector("button[name='save']")).click();
   }
 
@@ -193,6 +160,25 @@ public class ApplicationManager {
     }
   }
 
+  public void findElementAndTypeQuantity(WebElement element, String value) {
+    new Actions(wd)
+            .moveToElement(element)
+            .click()
+            .sendKeys(Keys.ARROW_RIGHT)
+            .sendKeys(Keys.BACK_SPACE)
+            .sendKeys(value)
+            .perform();
+  }
+
+  public void typeDateValue (String DateString){
+    new Actions(wd)
+            .sendKeys(Keys.ARROW_LEFT)
+            .sendKeys(Keys.ARROW_LEFT)
+            .sendKeys(DateString)
+            .sendKeys(Keys.TAB)
+            .perform();
+  }
+
   public void unhide(WebElement element) {
     String script = "arguments[0].style.opacity=1;"
             + "arguments[0].style['transform']='translate(0px, 0px) scale(1)';"
@@ -207,9 +193,6 @@ public class ApplicationManager {
   public boolean isProductExist(String nameOfProduct) {
     wd.findElement(By.cssSelector("a[href$='catalog']")).click();
     wd.findElement(By.cssSelector("input[type='search']")).sendKeys(nameOfProduct + Keys.ENTER);
-    WebElement footer = wd.findElement(By.cssSelector("tr.footer"));
-    WebDriverWait wait = new WebDriverWait(wd, 10/*seconds*/);
-    wait.until(stalenessOf(footer));
     List<WebElement> elements = wd.findElements(By.xpath(String.format("//a[contains(text(),'%s')]",nameOfProduct)));
     return elements.size()>0;
   }
