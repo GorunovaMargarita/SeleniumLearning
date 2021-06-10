@@ -20,8 +20,8 @@ public class ApplicationManager {
   private final String browser;
   public WebDriver wd;
   public WebDriverWait wait;
-  public int implicitlyWaitTimeOut = 10;
-  public int waitTimeOut = 10;
+  public int implicitlyWaitTimeOut = 20;
+  public int waitTimeOut = 20;
 
 
   public ApplicationManager(String browser)  {
