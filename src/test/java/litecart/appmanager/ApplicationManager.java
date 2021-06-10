@@ -197,6 +197,15 @@ public class ApplicationManager {
     return elements.size()>0;
   }
 
+  public boolean isElementNotPresent(By locator) {
+    try {
+      wd.manage().timeouts().implicitlyWait(0, TimeUnit.SECONDS);
+      return wd.findElements(locator).size()==0;
+    } finally {
+      wd.manage().timeouts().implicitlyWait(implicitlyWaitTimeOut, TimeUnit.SECONDS);
+    }
+  }
+
   public void stop() {
     wd.quit();
   }
