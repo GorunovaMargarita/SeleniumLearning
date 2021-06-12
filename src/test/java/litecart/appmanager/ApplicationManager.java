@@ -1,10 +1,12 @@
 package litecart.appmanager;
+import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.*;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.BrowserType;
+import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -13,6 +15,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ApplicationManager {
@@ -20,8 +23,8 @@ public class ApplicationManager {
   private final String browser;
   public WebDriver wd;
   public WebDriverWait wait;
-  public int implicitlyWaitTimeOut = 20;
-  public int waitTimeOut = 20;
+  public int implicitlyWaitTimeOut = 30;
+  public int waitTimeOut = 30;
 
 
   public ApplicationManager(String browser)  {
@@ -204,6 +207,18 @@ public class ApplicationManager {
     } finally {
       wd.manage().timeouts().implicitlyWait(implicitlyWaitTimeOut, TimeUnit.SECONDS);
     }
+  }
+
+  public ExpectedCondition<String> anyWindowOtherThen(Set<String> oldWindowHandles){
+    return new ExpectedCondition<String>() {
+      @NullableDecl
+      @Override
+      public String apply(WebDriver webDriver) {
+        Set<String> handles = webDriver.getWindowHandles();
+        handles.removeAll(oldWindowHandles);
+        return handles.size() > 0 ? handles.iterator().next():null;
+      }
+    };
   }
 
   public void stop() {

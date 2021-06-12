@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.Select;
 public class DeleteProductsFromBasket extends TestBase {
     @Test
     public void deleteProductsFromBasketTest() {
-        int nedeedDuckCount = 3;
+        int neededDuckCount = 3;
         app.wd.get(app.propertyValue("web.baseUrl"));
         int duckCountInBasket = 0;
         do {
@@ -27,7 +27,7 @@ public class DeleteProductsFromBasket extends TestBase {
             app.wait.until(ExpectedConditions.attributeToBe(quantity,"textContent",String.valueOf(duckCountInBasket+1)));
             duckCountInBasket++;
             app.wd.findElement(By.cssSelector("i.fa.fa-home")).click();
-        } while (duckCountInBasket < nedeedDuckCount);
+        } while (duckCountInBasket < neededDuckCount);
         app.wd.findElement(By.cssSelector("a.link[href$='checkout']")).click();
         int countInBasket = app.wd.findElements(By.cssSelector("a.image-wrapper.shadow")).size();
         for (int i = 0; i < countInBasket; i++)
