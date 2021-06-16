@@ -6,6 +6,8 @@ import org.openqa.selenium.firefox.*;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.BrowserType;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -13,6 +15,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
@@ -33,20 +36,30 @@ public class ApplicationManager {
   }
 
   public void init() throws IOException {
-    if (browser.equals(BrowserType.CHROME)) {
-      wd = new ChromeDriver();
-    } else if (browser.equals(BrowserType.FIREFOX)) {
+    String target = System.getProperty("target","remote");
+    properties.load(new FileReader(new File(String.format("src/test/resources/%s.properties",target))));
+
+    if("".equals(properties.getProperty("selenium.server"))){
+      if (browser.equals(BrowserType.CHROME)) {
+        wd = new ChromeDriver();
+      } else if (browser.equals(BrowserType.FIREFOX)) {
       /*
       //раскомментировать, если хотим запустить Firefox Nightly
       FirefoxOptions options = new FirefoxOptions();
       options.setBinary(new FirefoxBinary(new File("D:\\Tools\\Firefox Nightly\\firefox.exe")));
       wd = new FirefoxDriver(options);
        */
-      wd = new FirefoxDriver();
-    } else if (browser.equals(BrowserType.IE)) {
-      wd = new InternetExplorerDriver();
+        wd = new FirefoxDriver();
+      } else if (browser.equals(BrowserType.IE)) {
+        wd = new InternetExplorerDriver();
+      }
+    }else{
+      DesiredCapabilities capabilities = new DesiredCapabilities();
+      capabilities.setBrowserName(browser);
+      capabilities.setPlatform(Platform.fromString(System.getProperty("platform","windows")));
+      wd=new RemoteWebDriver(new URL(properties.getProperty("selenium.server")),capabilities);
     }
-    properties.load(new FileReader(new File("src/test/resources/local.properties")));
+    //properties.load(new FileReader(new File("src/test/resources/local.properties")));
     wd.manage().timeouts().implicitlyWait(implicitlyWaitTimeOut, TimeUnit.SECONDS);
     wait = new WebDriverWait(wd,waitTimeOut);
   }
@@ -56,7 +69,7 @@ public class ApplicationManager {
     wd.findElement(By.xpath("//input[@name='email']")).sendKeys(email);
     wd.findElement(By.xpath("//input[@name='password']")).sendKeys(password);
     wd.findElement(By.xpath("//button[@name='login']")).click();
-    wd.findElement(By.cssSelector("a[href='http://localhost/litecart/public_html/en/logout']"));
+    wd.findElement(By.cssSelector("#box-account a[href$='logout']"));
   }
   public void loginAdmin() {
     wd.get(properties.getProperty("web.adminUrl"));
