@@ -1,13 +1,11 @@
 package ru.stqa.training.selenium;
 
 
+import com.google.common.io.Files;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.openqa.selenium.By;
-import org.openqa.selenium.HasCapabilities;
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
@@ -15,6 +13,9 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
+
+import java.io.File;
+import java.io.IOException;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.titleContains;
 import static org.openqa.selenium.support.ui.ExpectedConditions.titleIs;
@@ -38,6 +39,15 @@ public class MyFirstTest {
     @Override
     public void onException(Throwable throwable, WebDriver driver) {
       System.out.println(throwable);
+      //Делаем скриншот, если не нашли элемент
+      File tmp = ((TakesScreenshot) driver).getScreenshotAs(OutputType.FILE);
+      File screen = new File("screen-" + System.currentTimeMillis() + ".png");
+      try {
+        Files.copy(tmp,screen);
+      }catch (IOException e) {
+        e.printStackTrace();
+      }
+      System.out.println(screen);
     }
   }
 
