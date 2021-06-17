@@ -9,6 +9,10 @@ import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.logging.LogEntry;
+import org.openqa.selenium.logging.LogType;
+import org.openqa.selenium.logging.LoggingPreferences;
+import org.openqa.selenium.remote.CapabilityType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
@@ -16,6 +20,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import static org.openqa.selenium.support.ui.ExpectedConditions.titleContains;
 import static org.openqa.selenium.support.ui.ExpectedConditions.titleIs;
@@ -53,11 +58,15 @@ public class MyFirstTest {
 
   @Before
   public void start(){
-    DesiredCapabilities caps = new DesiredCapabilities();
-    caps.setCapability("unexpectedAlertBehaviour", "dismiss");
+    //DesiredCapabilities caps = new DesiredCapabilities();
+   // caps.setCapability("unexpectedAlertBehaviour", "dismiss");
    // driver = new InternetExplorerDriver(caps);
    // driver = new FirefoxDriver(caps);
-    driver = new EventFiringWebDriver(new ChromeDriver(caps));
+    DesiredCapabilities cap = DesiredCapabilities.chrome();
+    LoggingPreferences logPrefs = new LoggingPreferences();
+    logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
+    cap.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
+    driver = new EventFiringWebDriver(new ChromeDriver(cap));
     driver.register(new MyListener());
     System.out.println(((HasCapabilities) driver).getCapabilities());
     wait = new WebDriverWait(driver,10);
@@ -68,7 +77,19 @@ public class MyFirstTest {
     driver.get("https://ya.ru");
     driver.findElement(By.xpath("//input[@name='text']")).sendKeys("webdriver");
     driver.findElement(By.xpath("//button[@type='submit']")).click();
+    for (LogEntry l : driver.manage().logs().get("browser").getAll()) {
+      System.out.println(l);
+    }
     wait.until(titleContains("webdriver — Яндекс"));
+  }
+
+  @Test
+  public void getBrowserLogs() {
+    driver.get("http://selenium2.ru");
+    //System.out.println(driver.manage().logs().getAvailableLogTypes());
+   // driver.manage().logs().getAvailableLogTypes();
+    driver.manage().logs().get("browser").forEach(l-> System.out.println(l));
+    driver.quit();
   }
   @After
   public void stop() {
