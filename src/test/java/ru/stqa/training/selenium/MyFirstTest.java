@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.logging.LogEntry;
@@ -62,11 +63,13 @@ public class MyFirstTest {
    // caps.setCapability("unexpectedAlertBehaviour", "dismiss");
    // driver = new InternetExplorerDriver(caps);
    // driver = new FirefoxDriver(caps);
-    DesiredCapabilities cap = DesiredCapabilities.chrome();
+
+    ChromeOptions opt = new ChromeOptions();
     LoggingPreferences logPrefs = new LoggingPreferences();
     logPrefs.enable(LogType.PERFORMANCE, Level.ALL);
-    cap.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
-    driver = new EventFiringWebDriver(new ChromeDriver(cap));
+    opt.setCapability(CapabilityType.LOGGING_PREFS, logPrefs);
+    opt.setExperimentalOption("w3c", false);
+    driver = new EventFiringWebDriver(new ChromeDriver(opt));
     driver.register(new MyListener());
     System.out.println(((HasCapabilities) driver).getCapabilities());
     wait = new WebDriverWait(driver,10);
@@ -87,8 +90,9 @@ public class MyFirstTest {
   public void getBrowserLogs() {
     driver.get("http://selenium2.ru");
     //System.out.println(driver.manage().logs().getAvailableLogTypes());
-   // driver.manage().logs().getAvailableLogTypes();
+    System.out.println(driver.manage().logs().getAvailableLogTypes());
     driver.manage().logs().get("browser").forEach(l-> System.out.println(l));
+    driver.manage().logs().get("performance").forEach(l-> System.out.println(l));
     driver.quit();
   }
   @After
