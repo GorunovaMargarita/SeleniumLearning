@@ -1,5 +1,6 @@
 package litecart.appmanager;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
+import org.junit.Assert;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.*;
@@ -9,6 +10,7 @@ import org.openqa.selenium.remote.BrowserType;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.RemoteWebDriver;
 import org.openqa.selenium.support.ui.ExpectedCondition;
+import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -76,6 +78,10 @@ public class ApplicationManager {
     wd.findElement(By.xpath("//input[@name='username']")).sendKeys(properties.getProperty("web.adminLogin"));
     wd.findElement(By.xpath("//input[@name='password']")).sendKeys(properties.getProperty("web.adminPassword"));
     wd.findElement(By.xpath("//button[@name='login']")).click();
+  }
+
+  public void goToBaseUrl(){
+    wd.get(properties.getProperty("web.baseUrl"));;
   }
 
   public void userRegistration(String firstName, String lastName, String address1, String postcode, String city,
@@ -237,7 +243,48 @@ public class ApplicationManager {
   public void stop() {
     wd.quit();
   }
+
   public String propertyValue(String propertyName) {
     return properties.getProperty(propertyName);
+  }
+
+  public void clearBasket() {
+    int countInBasket = getCountInBasket();
+    for (int i = 0; i < countInBasket; i++)
+    {
+      WebElement table = wd.findElement(By.cssSelector("table.dataTable.rounded-corners"));
+      wd.findElement(By.cssSelector("button[value='Remove']")).click();
+      wait.until(ExpectedConditions.stalenessOf(table));
+    }
+    Assert.assertEquals(wd.findElement(By.cssSelector("p em")).getText(),"There are no items in your cart.");
+  }
+
+  public int getCountInBasket() {
+    return wd.findElements(By.cssSelector("a.image-wrapper.shadow")).size();
+  }
+
+  public void goToBasket() {
+    wd.findElement(By.cssSelector("a.link[href$='checkout']")).click();
+  }
+
+  public void goHome() {
+    wd.findElement(By.cssSelector("i.fa.fa-home")).click();
+  }
+
+  public void addDuckIntoBasket() {
+    int duckCountInBasket = getDuckQuantityInBasket();
+    WebElement firstDuck = wd.findElements(By.cssSelector("#box-most-popular a.link")).get(0);
+    firstDuck.click();
+
+    if(!isElementNotPresent(By.cssSelector("select"))){
+      Select select = new Select(wd.findElement(By.cssSelector("select")));
+      select.selectByIndex(1);
+    }
+    wd.findElement(By.cssSelector("button[name=add_cart_product")).click();
+    wait.until(ExpectedConditions.attributeToBe(wd.findElement(By.cssSelector("span.quantity")),"textContent",String.valueOf(duckCountInBasket+1)));
+  }
+
+  public int getDuckQuantityInBasket(){
+    return Integer.parseInt(wd.findElement(By.cssSelector("span.quantity")).getText());
   }
 }
