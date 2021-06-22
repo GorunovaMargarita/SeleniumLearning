@@ -1,4 +1,7 @@
 package litecart.appmanager;
+import litecart.Pages.BasketPage;
+import litecart.Pages.MainPage;
+import litecart.Pages.ProductPage;
 import org.checkerframework.checker.nullness.compatqual.NullableDecl;
 import org.junit.Assert;
 import org.openqa.selenium.*;
@@ -31,16 +34,20 @@ public class ApplicationManager {
   public int implicitlyWaitTimeOut = 30;
   public int waitTimeOut = 30;
 
+  private MainPage mainPage;
+  private ProductPage productPage;
+  private BasketPage basketPage;
+
 
   public ApplicationManager(String browser)  {
     this.browser=browser;
     properties = new Properties();
+
   }
 
   public void init() throws IOException {
     String target = System.getProperty("target","local");
     properties.load(new FileReader(new File(String.format("src/test/resources/%s.properties",target))));
-
     if("".equals(properties.getProperty("selenium.server"))){
       if (browser.equals(BrowserType.CHROME)) {
         wd = new ChromeDriver();
@@ -64,6 +71,9 @@ public class ApplicationManager {
     //properties.load(new FileReader(new File("src/test/resources/local.properties")));
     wd.manage().timeouts().implicitlyWait(implicitlyWaitTimeOut, TimeUnit.SECONDS);
     wait = new WebDriverWait(wd,waitTimeOut);
+    mainPage = new MainPage(wd);
+    productPage = new ProductPage(wd);
+    basketPage = new BasketPage(wd);
   }
 
   public void login(String email, String password) {
@@ -81,7 +91,7 @@ public class ApplicationManager {
   }
 
   public void goToBaseUrl(){
-    wd.get(properties.getProperty("web.baseUrl"));;
+    wd.get(properties.getProperty("web.baseUrl"));
   }
 
   public void userRegistration(String firstName, String lastName, String address1, String postcode, String city,
@@ -275,7 +285,6 @@ public class ApplicationManager {
     int duckCountInBasket = getDuckQuantityInBasket();
     WebElement firstDuck = wd.findElements(By.cssSelector("#box-most-popular a.link")).get(0);
     firstDuck.click();
-
     if(!isElementNotPresent(By.cssSelector("select"))){
       Select select = new Select(wd.findElement(By.cssSelector("select")));
       select.selectByIndex(1);
