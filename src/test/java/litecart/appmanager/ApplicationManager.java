@@ -91,7 +91,7 @@ public class ApplicationManager {
   }
 
   public void goToBaseUrl(){
-    wd.get(properties.getProperty("web.baseUrl"));
+    mainPage.open(properties.getProperty("web.baseUrl"));
   }
 
   public void userRegistration(String firstName, String lastName, String address1, String postcode, String city,
@@ -262,38 +262,41 @@ public class ApplicationManager {
     int countInBasket = getCountInBasket();
     for (int i = 0; i < countInBasket; i++)
     {
-      WebElement table = wd.findElement(By.cssSelector("table.dataTable.rounded-corners"));
-      wd.findElement(By.cssSelector("button[value='Remove']")).click();
+      WebElement table = wd.findElement(By.cssSelector("table.dataTable.rounded-corners"));//basketPage.productsTable;
+      basketPage.removeButton.click();
       wait.until(ExpectedConditions.stalenessOf(table));
     }
-    Assert.assertEquals(wd.findElement(By.cssSelector("p em")).getText(),"There are no items in your cart.");
+    Assert.assertEquals(basketPage.emptyBasketMessage.getText(),"There are no items in your cart.");
   }
 
   public int getCountInBasket() {
-    return wd.findElements(By.cssSelector("a.image-wrapper.shadow")).size();
+    return basketPage.quantityUnicProductsInto.size();
   }
 
   public void goToBasket() {
-    wd.findElement(By.cssSelector("a.link[href$='checkout']")).click();
+    mainPage.basketPageLink.click();
   }
 
   public void goHome() {
-    wd.findElement(By.cssSelector("i.fa.fa-home")).click();
+    mainPage.homeLink.click();
   }
 
   public void addDuckIntoBasket() {
     int duckCountInBasket = getDuckQuantityInBasket();
-    WebElement firstDuck = wd.findElements(By.cssSelector("#box-most-popular a.link")).get(0);
-    firstDuck.click();
+    openAnyProduct();
     if(!isElementNotPresent(By.cssSelector("select"))){
-      Select select = new Select(wd.findElement(By.cssSelector("select")));
-      select.selectByIndex(1);
+      productPage.selectAnySize();
     }
-    wd.findElement(By.cssSelector("button[name=add_cart_product")).click();
-    wait.until(ExpectedConditions.attributeToBe(wd.findElement(By.cssSelector("span.quantity")),"textContent",String.valueOf(duckCountInBasket+1)));
+    productPage.addProductIntoBasketButton.click();
+    wait.until(ExpectedConditions.attributeToBe(basketPage.quantityInto,"textContent",String.valueOf(duckCountInBasket+1)));
+  }
+
+  private void openAnyProduct() {
+    WebElement firstDuck = mainPage.productLinks.get(0);//wd.findElements(By.cssSelector("#box-most-popular a.link")).get(0);
+    firstDuck.click();
   }
 
   public int getDuckQuantityInBasket(){
-    return Integer.parseInt(wd.findElement(By.cssSelector("span.quantity")).getText());
+    return Integer.parseInt(basketPage.quantityInto.getText());
   }
 }
